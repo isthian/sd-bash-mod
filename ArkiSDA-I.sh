@@ -44,6 +44,10 @@ mkdir models
 cd models
 wget $CHECKPOINT 
 cd ..
+
+echo " Almost there ... "
+echo " Don't hit Ctrl+C! "
+
 conda env create -f environment-wsl2.yaml
 conda activate automatic
 mkdir embeddings
@@ -58,15 +62,8 @@ pip3 install git+https://github.com/TencentARC/GFPGAN.git
 pip3 install -r repositories/CodeFormer/requirements.txt 
 pip3 install -r requirements.txt  
 
-
 wget https://github.com/TencentARC/GFPGAN/releases/download/v1.3.0/GFPGANv1.3.pth
 cd /home/user/stable-diffusion-webui/models/
-echo " "
-echo "Paste model.ckpt link if first tries failed"
-
-read LINXY
-
-curl -LO $LINXI
 
 cd /home/user/stable-diffusion-webui/
 
@@ -79,7 +76,7 @@ sudo apt install nodejs -y
 sudo npm cache clean -f
 sudo npm install -g n
 sudo n stable
-sudo npm install -g localtunnel
+sudo npm install -g localtunnellt 00=
 echo "Click link below to access SD-WebUI locally after setup finishes and displays localhost link."
 lt --port 7860 &
  	
