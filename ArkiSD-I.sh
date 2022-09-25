@@ -1,63 +1,73 @@
 #!/bin/bash
-clear
-  
-echo "SD-WebUI Automatic Installation by Arkitecc#0339 @ https://ko-fi.com/arkitecc"
-# but, like, Joe helped.
-echo "IMPORTANT: If this is the first time you're running these scripts, each script will require you to enter 'chmod +x scriptname.sh && bash scriptname.sh' to give Linux the proper permissions to execute the scripts for the first time. Afterward, you can run them simply with 'bash scriptname.sh'"
-echo "Run the ArkiSD-IT.sh script afterward to install support for Textual Inversion embeddings."
-echo "Run the ArkiSD-U.sh script to pull the latest changes from the SD-WebUI repo." 
-echo "Run the ArkiSD-U.sh script with -t to pull changes if you've installed Textual Inversion."
-echo "Run the ArkiSD-R.sh (default mode) or ArkiSD-RT.sh (Textual Inversion Mode) scripts if you need to launch SD-WebUI in the future."
+export PATH="$HOME/.local/bin:$PATH"
 echo " "
-echo "CTRL+SHIFT+V to paste in direct download link to model.ckpt (I personally use Dropbox to host mine):"
+
+echo "First run enter 'chmod +x scriptname.sh && bash scriptname.sh' "
+echo "Run ArkiSDA-U.sh to pull latest AUTOMATIC1111 repo." 
+echo "Run ArkiSDA-R.sh (default mode) or ArkiSD-RT.sh (Textual Inversion Mode) to launch SD-WebUI."
+echo "Run ArkiSDA-RT.sh script after to launch SD with Textual Inversion embeddings."
+echo " "
+echo "paste direct download link to model.ckpt:"
 
 read CHECKPOINT
 
-clear
 echo "Updating Packages..."
 
 #Package Updating
 sudo apt-get update
+sudo apt install python3-pip -y
 sudo apt-get upgrade -y
-sudo apt install rsync
 
-clear
-echo "Installing Miniconda..."
+# Anaconda Installation
+PIP_EXISTS_ACTION=i
+cd ~/tmp
+wget https://repo.anaconda.com/archive/Anaconda3-2022.05-Linux-x86_64.sh
+bash Anaconda3-2022.05-Linux-x86_64.sh -b -u
+cd ~/anaconda3
+PIP_EXISTS_ACTION=w
+pip install opencv-python
+PIP_EXISTS_ACTION=i
 
-# Miniconda Installation
-cd /tmp/
-curl -LO https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
-bash Miniconda3-latest-Linux-x86_64.sh -b -u
-source ~/miniconda3/bin/activate 
+source ~/anaconda3/bin/activate 
 conda init bash
 cd
 
-clear
-echo "Installing SD-WebUI..."
+echo " "
+echo " "
+echo " "
+echo "Installing AUTOMATIC1111 SD-WebUI..."
 
-# HLKY Installation
-git clone https://github.com/sd-webui/stable-diffusion-webui.git
-cd stable-diffusion-webui && conda env create -f environment.yaml 
-conda activate ldm
-cd /home/user/stable-diffusion-webui/src/gfpgan/experiments/pretrained_models/
+# AUTOMATIC1111 Installation
+git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui.git
+cd /home/user/stable-diffusion-webui/
+mkdir models
+cd models
+wget $CHECKPOINT 
+cd ..
+
+echo " Almost there ... "
+echo " Don't hit Ctrl+C! "
+
+conda env create -f environment-wsl2.yaml
+conda activate automatic
+mkdir embeddings
+mkdir repositories
+git clone https://github.com/CompVis/stable-diffusion.git repositories/stable-diffusion
+git clone https://github.com/CompVis/taming-transformers.git repositories/taming-transformers
+git clone https://github.com/sczhou/CodeFormer.git repositories/CodeFormer
+git clone https://github.com/salesforce/BLIP.git repositories/BLIP
+pip3 install transformers==4.19.2 diffusers invisible-watermark 
+pip3 install git+https://github.com/crowsonkb/k-diffusion.git 
+pip3 install git+https://github.com/TencentARC/GFPGAN.git 
+pip3 install -r repositories/CodeFormer/requirements.txt 
+pip3 install -r requirements.txt  
+
 wget https://github.com/TencentARC/GFPGAN/releases/download/v1.3.0/GFPGANv1.3.pth
-cd  /home/user/stable-diffusion-webui/src/realesrgan/experiments/pretrained_models/
-wget https://github.com/xinntao/Real-ESRGAN/releases/download/v0.1.0/RealESRGAN_x4plus.pth
-wget https://github.com/xinntao/Real-ESRGAN/releases/download/v0.2.2.4/RealESRGAN_x4plus_anime_6B.pth
-cd /home/user/stable-diffusion-webui/models/ldm/stable-diffusion-v1/
+cd /home/user/stable-diffusion-webui/models/
 
-curl -LO $CHECKPOINT
+cd /home/user/stable-diffusion-webui/
 
-cd /home/user/stable-diffusion-webui/src/
-git clone https://github.com/devilismyfriend/latent-diffusion.git
-mkdir -p /home/user/stable-diffusion-webui/src/latent-diffusion/experiments/pretrained_models
-cd /home/user/stable-diffusion-webui/src/latent-diffusion/experiments/pretrained_models
-wget "https://heibox.uni-heidelberg.de/f/31a76b13ea27482981b4/?dl=1"
-wget "https://heibox.uni-heidelberg.de/f/578df07c8fc04ffbadf3/?dl=1"
-mv index.html?dl=1 project.yaml && mv index.html?dl=1.1 model.ckpt
-cd
-
-clear
+echo " "
 echo "Installing Local Tunnel..."
 
 # Local Tunnel Installation
@@ -66,9 +76,9 @@ sudo apt install nodejs -y
 sudo npm cache clean -f
 sudo npm install -g n
 sudo n stable
-sudo npm install -g localtunnel
-echo "Click on the link with the random name below to access SD-WebUI on your local PC once the initialization finishes and shows you the localhost link."
+sudo npm install -g localtunnellt 00=
+echo "Click link below to access SD-WebUI locally after setup finishes and displays localhost link."
 lt --port 7860 &
  	
-echo "Initializing SD-WebUI..."
-source ~/miniconda3/bin/activate && conda activate ldm && cd /home/user/stable-diffusion-webui/ && python3 scripts/webui.py &
+echo "Initializing AUTOMATIC1111's SD-WebUI..."
+python3 webui.py 
